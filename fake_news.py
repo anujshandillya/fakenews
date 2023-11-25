@@ -1,51 +1,107 @@
 import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier
 import re
 import string
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import classification_report, confusion_matrix
 
-newsFake=pd.read_csv("Fake.csv", low_memory=False)
-newsTrue=pd.read_csv("True.csv", low_memory=False)
-newsFake['class']=0
-newsTrue['class']=1
+data_fake = pd.read_csv('Fake.csv')
+data_true = pd.read_csv('True.csv')
+data_fake["class"] = 0
+data_true["class"] = 1
 
-model=DecisionTreeClassifier()
+data_fake_manual_testing = data_fake.tail(10)
+for i in range(23480, 23470, -1):
+    data_fake.drop([i], axis = 0, inplace = True)
 
-def txtprcs(text):
-    # convert to lower case.
-    text=text.lower()
-    # Remove text between square brackets, like [text]
-    text = re.sub('\[.*?\]', '', text)
-    # Replace non-word characters (punctuation, symbols) with spaces
+data_true_manual_testing = data_true.tail(10)
+for i in range(21416, 21406, -1):
+    data_true.drop([i], axis = 0, inplace = True)
+
+data_fake_manual_testing["class"] = 0
+data_true_manual_testing["class"] = 1
+
+data_merge = pd.concat([data_fake, data_true], axis = 0)
+
+data = data_merge.drop(["subject", "date"], axis = 1)
+data.isnull().sum()
+data = data.sample(frac = 1)
+
+data.reset_index(inplace = True)
+data.drop(['index'], axis = 1, inplace = True)
+
+def wordopt(text):
+    text = text. lower()
+    text = re.sub('\[ .*? \]', '', text)
     text = re.sub("\\W", " ", text)
-    # Remove URLs starting with 'http://' or 'https://' and 'www.'
-    text = re.sub('https?://\S+|www\.\S+', '', text)
-    # Remove HTML tags
-    text = re.sub('<.*?>+', '', text)
-    # Remove all punctuation characters
+    text = re.sub('https ?: //\S+|www\.\S+', '', text)
+    text = re.sub(' <.*? >+', '', text)
     text = re.sub('[%s]' % re.escape(string.punctuation), '', text)
-    # Remove newline characters
     text = re.sub('\n', '', text)
-    # Remove words containing digits (e.g., 'word123')
     text = re.sub('\w*\d\w*', '', text)
-    
     return text
 
-merged_news=pd.concat([newsTrue,newsFake])
-merged_news.dropna(inplace=True)
-merged_news.isna().sum()
-merged_news[['text','class']]
+data['title'] = data['title'].apply(wordopt)
 
-X=merged_news['title']
-y=merged_news['class']
+x = data['title']
+y = data['class']
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.25)
 
-vect=TfidfVectorizer()
-xv_train=vect.fit_transform(X_train)
-xv_test=vect.transform(X_test)
+vectorization = TfidfVectorizer()
+xv_train = vectorization.fit_transform(x_train)
+xv_test = vectorization.transform(x_test)
 
-model.fit(xv_train, y_train)
-predict=model.predict(xv_test)
+LR = LogisticRegression()
+LR.fit(xv_train, y_train)
+pred_lr = LR.predict(xv_test)
+LR.score(xv_test, y_test)
+
+DT = DecisionTreeClassifier()
+DT.fit(xv_train, y_train)
+pred_dt = DT.predict(xv_test)
+DT.score(xv_test, y_test)
+print(classification_report(y_test, pred_dt))
+
+GB = GradientBoostingClassifier(random_state = 0)
+GB.fit(xv_train, y_train)
+
+pred_gb = GB.predict(xv_test)
+
+GB.score(xv_test, y_test)
+
+print(classification_report(y_test, pred_gb))
+
+RF = RandomForestClassifier(random_state = 0)
+RF.fit(xv_train, y_train)
+
+pred_rf = RF.predict(xv_test)
+
+RF.score(xv_test, y_test)
+
+print(classification_report(y_test, pred_rf))
+
+def output_lable(n):
+    if n == 0:
+        return "Fake News"
+    elif n == 1:
+        return "Not A Fake News"
+def manual_testing(news: str):
+    testing_news = {"text": [news]}
+    new_def_test = pd.DataFrame(testing_news)
+    new_def_test["text"] = new_def_test["text"].apply(wordopt)
+    new_x_test = new_def_test["text"]
+    new_xv_test = vectorization.transform(new_x_test)
+    pred_LR = LR.predict(new_xv_test)
+    pred_DT = DT.predict(new_xv_test)
+    pred_GB = GB.predict(new_xv_test)
+    pred_RF = RF.predict(new_xv_test)
+    print("\n\nLR Prediction: {} \nDT Prediction: {} \nGB Prediction: {} \nRF Prediction: {}".format(output_lable(pred_LR[0]), output_lable(pred_DT[0]), output_lable(pred_GB[0]), output_lable(pred_RF[0])))
