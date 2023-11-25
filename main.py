@@ -17,9 +17,9 @@ def get():
 
 @app.route("/predict", methods=['POST'])
 def send():
-    news=request.get_json()
-
-    return 0
+    request.content_type('application/json')
+    news = request.json('news')
+    return news
 
 
 if __name__=='__main__':
