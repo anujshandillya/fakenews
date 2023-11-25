@@ -94,7 +94,7 @@ def output_lable(n):
         return "Fake News"
     elif n == 1:
         return "Not A Fake News"
-def manual_testing(news: str):
+def manual_testing(news):
     testing_news = {"text": [news]}
     new_def_test = pd.DataFrame(testing_news)
     new_def_test["text"] = new_def_test["text"].apply(wordopt)
@@ -104,4 +104,5 @@ def manual_testing(news: str):
     pred_DT = DT.predict(new_xv_test)
     pred_GB = GB.predict(new_xv_test)
     pred_RF = RF.predict(new_xv_test)
-    print("\n\nLR Prediction: {} \nDT Prediction: {} \nGB Prediction: {} \nRF Prediction: {}".format(output_lable(pred_LR[0]), output_lable(pred_DT[0]), output_lable(pred_GB[0]), output_lable(pred_RF[0])))
+    # return pred_LR
+    return ("\n\nLR Prediction: {} \nDT Prediction: {} \nGB Prediction: {} \nRF Prediction: {}".format(output_lable(pred_LR[0]), output_lable(pred_DT[0]), output_lable(pred_GB[0]), output_lable(pred_RF[0])))
