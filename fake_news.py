@@ -93,7 +93,7 @@ def output_lable(n):
     if n == 0:
         return "Fake News"
     elif n == 1:
-        return "Not A Fake News"
+        return "Real News"
 def manual_testing(news):
     testing_news = {"text": [news]}
     new_def_test = pd.DataFrame(testing_news)
@@ -104,5 +104,10 @@ def manual_testing(news):
     pred_DT = DT.predict(new_xv_test)
     pred_GB = GB.predict(new_xv_test)
     pred_RF = RF.predict(new_xv_test)
-    # return pred_LR
-    return ("\n\nLR Prediction: {} \nDT Prediction: {} \nGB Prediction: {} \nRF Prediction: {}".format(output_lable(pred_LR[0]), output_lable(pred_DT[0]), output_lable(pred_GB[0]), output_lable(pred_RF[0])))
+    return {
+        "logisticRegression": output_lable(pred_LR[0]),
+        "DecisionTree": output_lable(pred_DT[0]),
+        "GradientBoosting": output_lable(pred_GB[0]),
+        "RandomForest": output_lable(pred_RF[0])
+    }
+    # return ("\n\nLR Prediction: {} \nDT Prediction: {} \nGB Prediction: {} \nRF Prediction: {}".format(output_lable(pred_LR[0]), output_lable(pred_DT[0]), output_lable(pred_GB[0]), output_lable(pred_RF[0])))

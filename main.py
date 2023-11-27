@@ -8,12 +8,14 @@ CORS(app)
 
 @app.route("/")
 def get():
-    return render_template('index.html')
+    return render_template('index.html', LR="", DT="", GB="", RF="")
 
 @app.route("/predict", methods=['POST'])
 def send():
     text=request.form['title']
-    return FNP.manual_testing(text)
+    x=FNP.manual_testing(text)
+    return render_template('index.html', LR=x["logisticRegression"], DT=x["DecisionTree"], GB=x["GradientBoosting"], RF=x["RandomForest"])
+    # return FNP.manual_testing(text)
 
 if __name__=='__main__':
     app.run(debug=True)
