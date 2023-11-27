@@ -15,7 +15,6 @@ def send():
     text=request.form['title']
     x=FNP.manual_testing(text)
     return render_template('index.html', LR=x["logisticRegression"], DT=x["DecisionTree"], GB=x["GradientBoosting"], RF=x["RandomForest"])
-    # return FNP.manual_testing(text)
 
 if __name__=='__main__':
     app.run(debug=True)

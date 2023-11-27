@@ -110,4 +110,3 @@ def manual_testing(news):
         "GradientBoosting": output_lable(pred_GB[0]),
         "RandomForest": output_lable(pred_RF[0])
     }
-    # return ("\n\nLR Prediction: {} \nDT Prediction: {} \nGB Prediction: {} \nRF Prediction: {}".format(output_lable(pred_LR[0]), output_lable(pred_DT[0]), output_lable(pred_GB[0]), output_lable(pred_RF[0])))
